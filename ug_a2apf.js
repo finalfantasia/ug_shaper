@@ -80,13 +80,12 @@
 
         for (i = 0; i < inputString.length; i++) {
             currentChar = inputString.charCodeAt(i);
+            currentFormSet = a2apfMap[currentChar];
 
-            if (currentChar >= ARABIC_START && currentChar < ARABIC_END && a2apfMap[currentChar]) {
-                currentFormSet = a2apfMap[currentChar];
-
+            if (currentChar >= ARABIC_START && currentChar < ARABIC_END && currentFormSet) {
                 // previous letter was a connectable Uyghur letter.
                 if (previousConnectivity === CONNECTABLE) { 
-                    // update previous presentation form so that it gets presented as connected to the current one.
+                    // change previous presentation form so that it gets presented as connected to the current one.
                     if (currentChar === 0x0627 && previousChar === 0x0644) { // special cases for LA and _LA
                         if (previousPresentationForm === a2apfMap[0x0644].isolated) {
                             previousPresentationForm = LA;
@@ -120,7 +119,7 @@
             convertedChars.push(String.fromCharCode(currentPresentationForm));
 
             previousChar = currentChar;
-            previousFormSet = a2apfMap[previousChar];
+            previousFormSet = currentFormSet;
             previousPresentationForm = currentPresentationForm;
             previousConnectivity = currentConnectivity;
         }
