@@ -1,7 +1,7 @@
 (function (window) {
     'use strict';
 
-    // Start and end code points of Unicode Arabic range
+    // Start and end code points of Unicode Arabic region
     var ARABIC_START = 0x0600,
         ARABIC_END = 0x06FF,
 
@@ -9,19 +9,6 @@
         _LA = 0xFEFC,
 
         // A map of Arabic to Arabic Presentation Forms A and B
-        a2apfMap;
-
-    function makeFormSet(isolated, initial, medial, final, isConnectable) {
-        return {
-            isolated: isolated,
-            initial: initial,
-            medial: medial,
-            final: final,
-            isConnectable: isConnectable // denotes if this letter connects with the succeeding letter.
-        };
-    }
-
-    function initializeMap() {
         a2apfMap = {
             0x0627: makeFormSet(0xFE8D, 0xFE8D, 0xFE8D, 0xFE8E, false), // a
             0x06D5: makeFormSet(0xFEE9, 0xFEE9, 0xFEE9, 0xFEEA, false), // e
@@ -57,6 +44,15 @@
             0x064A: makeFormSet(0xFEF1, 0xFEF3, 0xFEF4, 0xFEF2, true),  // y
             0x0626: makeFormSet(0xFE8B, 0xFE8B, 0xFE8C, 0xFB8C, true)   // hemze
         };
+
+    function makeFormSet(isolated, initial, medial, final, isConnectable) {
+        return {
+            isolated: isolated,
+            initial: initial,
+            medial: medial,
+            final: final,
+            isConnectable: isConnectable // denotes if this letter connects with the succeeding letter.
+        };
     }
 
     function convert(inputString) {
@@ -69,10 +65,6 @@
 
         if (typeof inputString !== 'string') {
             throw 'Expected input of type "string", instead got ' + (typeof inputString);
-        }
-
-        if (!a2apfMap) {
-            initializeMap();
         }
 
         for (i = 0; i < inputString.length; i++) {
@@ -109,7 +101,7 @@
                     currentPresentationForm = currentFormSet.isolated;
                     isCurrentConnectable = currentFormSet.isConnectable;
                 }
-            } else { // neither in Arabic range (0x0600-0x06FF) nor Uyghur characters
+            } else { // neither in Arabic region (0x0600-0x06FF) nor Uyghur characters
                 currentPresentationForm = currentChar;
                 isCurrentConnectable = false;
             }
