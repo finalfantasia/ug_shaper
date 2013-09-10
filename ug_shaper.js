@@ -1,15 +1,8 @@
 (function (window) {
     'use strict';
 
-    // Start and end code points of Unicode Arabic region
-    var ARABIC_START = 0x0600,
-        ARABIC_END = 0x06FF,
-
-        LA = 0xFEFB,
-        _LA = 0xFEFC,
-
-        // A map of Arabic to Arabic Presentation Forms A and B
-        a2apfMap = {
+    // A map of Arabic to Arabic Presentation Forms A and B
+    var a2apfMap = {
             0x0627: makeFormSet(0xFE8D, 0xFE8D, 0xFE8D, 0xFE8E, false), // a
             0x06D5: makeFormSet(0xFEE9, 0xFEE9, 0xFEE9, 0xFEEA, false), // e
             0x0628: makeFormSet(0xFE8F, 0xFE91, 0xFE92, 0xFE90, true),  // b
@@ -55,8 +48,17 @@
         };
     }
 
+    function isArabic(c) {
+        return (c >= 0x0600 && c < 0x06FF);
+    }
+
     function convert(inputString) {
-        var convertedChars = [],
+        var A = 0x0627,
+            L = 0x0644,
+            LA = 0xFEFB,
+            _LA = 0xFEFC,
+
+            resultChars = [],
             currentChar, previousChar,
             currentFormSet, previousFormSet,
             currentPresentationForm, previousPresentationForm,
@@ -71,12 +73,11 @@
             currentChar = inputString.charCodeAt(i);
             currentFormSet = a2apfMap[currentChar];
 
-            if (currentChar >= ARABIC_START && currentChar < ARABIC_END && currentFormSet) {
-                // previous letter was a connectable Uyghur letter.
+            if (isArabic(currentChar) && currentFormSet) {
                 if (isPreviousConnectable) {
-                    // special cases for LA and _LA
-                    if (currentChar === 0x0627 && previousChar === 0x0644) {
-                        if (previousPresentationForm === a2apfMap[0x0644].isolated) {
+                    // Presentation forms of ligatures LA and _LA need special handling.
+                    if (currentChar === A && previousChar === L) { // L + A becomes either LA or _LA
+                        if (previousPresentationForm === a2apfMap[L].isolated) {
                             previousPresentationForm = LA;
                         } else { // final form
                             previousPresentationForm = _LA;
@@ -96,8 +97,8 @@
                     }
 
                     // change previous presentation form so that it is presented as connected to current one.
-                    convertedChars[convertedChars.length - 1] = String.fromCharCode(previousPresentationForm);
-                } else { // previous letter was not a connectable Uyghur letter.
+                    resultChars[resultChars.length - 1] = String.fromCharCode(previousPresentationForm);
+                } else { // previous letter was not a connectable Arabic letter.
                     currentPresentationForm = currentFormSet.isolated;
                     isCurrentConnectable = currentFormSet.isConnectable;
                 }
@@ -106,7 +107,7 @@
                 isCurrentConnectable = false;
             }
 
-            convertedChars.push(String.fromCharCode(currentPresentationForm));
+            resultChars.push(String.fromCharCode(currentPresentationForm));
 
             previousChar = currentChar;
             previousFormSet = currentFormSet;
@@ -114,7 +115,7 @@
             isPreviousConnectable = isCurrentConnectable;
         }
 
-        return convertedChars.join('');
+        return resultChars.join('');
     }
 
     function load() {
