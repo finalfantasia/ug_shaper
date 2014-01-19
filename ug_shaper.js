@@ -1,11 +1,20 @@
 /*
     ug_shaper.js (https://github.com/finalfantasia/ug_shaper)
     The MIT License (MIT)
-    Copyright (c) 2013 Abdussalam Abdurrahman (abdusalam.abdurahman@gmail.com)
+    Copyright (c) 2013, 2014 Abdussalam Abdurrahman (abdusalam.abdurahman@gmail.com)
 */
-
 (function (window) {
     'use strict';
+
+    function makeFormSet(isolated, initial, medial, final, isConnectable) {
+        return {
+            isolated: isolated,
+            initial: initial,
+            medial: medial,
+            final: final,
+            isConnectable: isConnectable // denotes if this letter connects with the succeeding letter.
+        };
+    }
 
     // A map of Arabic to Arabic Presentation Forms A and B
     var a2apfMap = {
@@ -43,16 +52,6 @@
             0x064A: makeFormSet(0xFEF1, 0xFEF3, 0xFEF4, 0xFEF2, true),  // y
             0x0626: makeFormSet(0xFE8B, 0xFE8B, 0xFE8C, 0xFB8C, true)   // hemze
         };
-
-    function makeFormSet(isolated, initial, medial, final, isConnectable) {
-        return {
-            isolated: isolated,
-            initial: initial,
-            medial: medial,
-            final: final,
-            isConnectable: isConnectable // denotes if this letter connects with the succeeding letter.
-        };
-    }
 
     function isArabic(c) {
         return (c >= 0x0600 && c < 0x06FF);
